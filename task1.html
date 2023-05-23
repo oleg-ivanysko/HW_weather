@@ -1,0 +1,328 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset=UTF-8>
+	<title>XMLHttpRequest Form</title>
+	<style type="text/css">
+        body{
+            width: 100vw;
+        }
+		h3 {text-align: center;}
+		input, select, label {
+			margin: 10px;
+			width: 200px;
+		}
+		.searchBox {
+			margin-left: auto;
+			margin-right: auto;
+			border: 1px solid gray;
+			border-radius: 5px;
+			height: 150px;
+			width: 300px;
+		}
+		#submit { text-align: center;}
+        
+        #out{
+            width: 100vw;
+            display: flex;
+            flex-wrap: wrap;
+        }
+        
+        .wrap{
+            width: 300px;
+            height: 210px;
+            display: flex;
+            margin: 10px;
+            border: 2px solid;
+            border-radius: 10%;
+        }
+        .imgItem, .text{
+            width: 150px;
+            display: flex;
+            height: 200px;
+            margin: 5px;
+            flex-direction: column;
+            justify-content: space-between;
+            border-radius: 10%;
+        }
+      
+        .filmType{
+            height: 20px;
+        }
+        .filmName{
+            height: 60px;
+        }
+        .filmYear{
+            height: 40px;  
+        }
+        .details{
+            width: 70px; 
+        }
+        #pag{
+            width: 100%;
+            height: 20px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            margin-left: auto;
+            margin-right: auto;
+            display: none;
+            justify-content: center;
+            
+        }
+        .pag_bntL, .pag_bntR, .pag_bnt{
+            width: 30px;
+            height: 20px; 
+            border: 1px solid; 
+            background-color: beige;
+            padding: 2px;
+            text-align: center;
+            cursor: pointer;
+            
+
+        }
+        .pag_bntL{
+            color: #eae9e9;
+            border: 1px solid black;
+        }
+        #infoWrapper{
+            flex-direction: column;
+            width: 50%;
+            height: 445px;
+            border-radius: 10%;
+            border: 1px solid;
+            margin-top: 20px;
+            margin-left: auto;
+            margin-right: auto;
+            display: none;
+        }
+        
+        #infoBlock{
+            width: 100%;
+            height: 425px;
+            
+            
+            display: flex;
+            
+        }
+        #imgInfo{
+            width: 40%;
+            height: calc(100% - 20px);
+            border-radius: 10%;
+            margin: 10px;
+        }
+        #mainInfo{
+            width: 55%;
+            height: calc(100% - 20px);
+            
+            display: flex;
+            margin: 10px;
+            flex-direction: column;
+        }
+        h4{
+            margin: 0px;
+            text-align: center;
+        }
+        .infoItems{
+            margin-bottom: 35px;
+        }
+
+	</style>
+</head>
+<body>
+	<h3>Search:</h3>
+	<div class="searchBox">
+		<form id="form" action="" onsubmit="return searchMovies(this)">
+			<label for="ntitle">Title</label>
+			<input id="filmName" type="text" name="ntitle" id="ntitle">
+			<label for="stype">Type</label>
+			<select id="typeName" name="stype" id="stype">
+				<option>movie</option>
+				<option>series</option>
+				<option>episode</option>
+			</select>
+			<div id="submit">
+				<input type="submit" name="submit" value="Search">
+			</div>
+		</form>
+	</div>
+	
+	<div id="out"></div>
+    <div id="pag">
+        <div id = "btnL" class="pag_bntL" onclick="clickL()">&#129176;</div>
+        <div class="pag_bnt" onclick="setPage(this)">1</div>
+        <div class="pag_bnt" onclick="setPage(this)">2</div>
+        <div class="pag_bnt" onclick="setPage(this)">3</div>
+        <div class="pag_bnt" onclick="setPage(this)">4</div>
+        <div class="pag_bnt" onclick="setPage(this)">5</div>
+        <div class="pag_bnt" onclick="setPage(this)">6</div>
+        <div id = "btnR" class="pag_bntR" onclick="clickR()">&#129178;</div>
+    </div>
+    <div id="infoWrapper">
+        <h4>Film info</h4>
+            <div id="infoBlock"> 
+                <img id="imgInfo"></img>
+                <div id="mainInfo">
+                    <div id="title" class="infoItems"></div>
+                    <div id="released" class="infoItems"></div>
+                    <div id="genre" class="infoItems"></div>
+                    <div id="country" class="infoItems"></div>
+                    <div id="director" class="infoItems"></div>
+                    <div id="writer" class="infoItems"></div>
+                    <div id="actors" class="infoItems" ></div>
+                    <div id="awards" class="infoItems"></div>
+                </div>
+             </div>
+    </div>
+    <div id="outT"></div>
+    
+	
+	<script type="application/javascript">
+		const url = "http://www.omdbapi.com/?apikey=2041d79a";
+		var request = new XMLHttpRequest();
+        var requestById = new XMLHttpRequest();
+		var movies = [];
+        var mInfo =[];
+        var page ="1";
+		function addMovies(moviesInfo) {
+			//outT.innerHTML = JSON.stringify(moviesInfo);		// ---
+			movies = moviesInfo.Search;
+            if(movies != undefined)  showColor(movies);
+                else out.innerText ="Movie not found!";
+			//
+		}
+		function searchMovies() {
+            
+			var my_url = (url + "&s=" + filmName.value + "&type="+ typeName.value + "&page="+ page) //+ "&plot=full"
+			request.open("GET", my_url, true);
+			request.responseType = "json";
+			request.onreadystatechange = function () {
+				if (request.readyState === 4 && request.status == 200)
+						addMovies(request.response);
+			}
+			request.send();
+			return false;
+		}
+
+function searchMoviesById(elem){
+    var filmId = elem.target.value;
+    var my_urlById = (url + "&i=" + filmId) //+ "&plot=full"
+            requestById.open("GET", my_urlById, true);
+            requestById.responseType = "json";
+            requestById.onreadystatechange = function () {
+				if (requestById.readyState === 4 && requestById.status == 200)
+                   // mInfo = requestById.response;
+                    showDetails(requestById.response)
+			}
+			requestById.send();
+}
+function showDetails(mInfo){
+   // outT.innerHTML = JSON.stringify(mInfo); 
+    var infoImg = document.getElementById("imgInfo");
+    var postInfo = mInfo.Poster;
+        if(postInfo.includes("http")) infoImg.src = postInfo;
+            else infoImg.src ="tv_cr.jpg";
+        document.getElementById("title").innerHTML="<b>Title:  </b>"+mInfo.Title;
+        document.getElementById("released").innerHTML="<b>Released:  </b>"+mInfo.Released;
+        document.getElementById("genre").innerHTML="<b>Genre:  </b>"+mInfo.Genre;
+        document.getElementById("country").innerHTML="<b>Country:  </b>"+mInfo.Country;
+        document.getElementById("director").innerHTML="<b>Director: </b> "+mInfo.Director;
+        document.getElementById("writer").innerHTML="<b>Writer:  </b>"+mInfo.Writer;
+        document.getElementById("actors").innerHTML="<b>Actors:  </b>"+mInfo.Actors;
+        document.getElementById("awards").innerHTML="<b>Awards:  </b>"+mInfo.Awards;
+
+        var showElem = document.getElementById("infoWrapper");
+       
+        showElem.style.display="flex";
+        showElem.scrollIntoView({block: "center", behavior: "smooth"});    
+}
+
+
+function setPage(e){
+        page = e.innerText;
+        searchMovies();
+}
+
+function clickR(){
+    var i;
+var pabBtnR = document.getElementsByClassName("pag_bnt");
+btnL.style.color = 'black';
+for(var el of pabBtnR) {
+    i = parseInt(el.innerText);
+    el.innerText = i + 1
+}
+}
+
+function clickL(){
+    var j;
+var pabBtnL = document.getElementsByClassName("pag_bnt");
+if(pabBtnL[0].innerText != "1"){
+        for(var el of pabBtnL) {
+            j = parseInt(el.innerText);
+            el.innerText = j - 1;
+            if(pabBtnL[0].innerText == "1") btnL.style.color = '#eae9e9';
+        }
+} 
+    else btnL.style.color = '#eae9e9';
+}
+
+function showColor(movies){
+  var mainDivExist = document.getElementById("out");
+  var checkChildren = mainDivExist.children;
+  var post;
+  out.innerText ="";
+  if(mainDivExist.children.length != 0){
+    while(mainDivExist.children.length > 0){
+      mainDivExist.removeChild( mainDivExist.children[0]);
+    }
+  }
+  for (var i=0; i < movies.length; i++ ){
+            var wrapDiv = document.createElement('div');
+                wrapDiv.className = "wrap"
+            var imgPoster = document.createElement('img');
+                imgPoster.className = "imgItem";
+                post = movies[i].Poster;
+                if(post.includes("http")) imgPoster.src = movies[i].Poster;
+                    else imgPoster.src ="tv_cr.jpg";
+
+                
+            var mainDiv = document.createElement('div');
+                mainDiv.className = "text";
+            var filmTypeDiv = document.createElement('div');
+                filmTypeDiv.className = "filmType";
+                filmTypeDiv.innerHTML = movies[i].Type;
+            var filmNameDiv = document.createElement('div');
+                filmNameDiv.className = "filmName";
+                filmNameDiv.innerHTML = movies[i].Title;
+            var filmYearDiv = document.createElement('div');
+                filmYearDiv.className = "filmYear";
+                filmYearDiv.innerHTML = movies[i].Year;
+            var buttonDetails = document.createElement('button');
+                buttonDetails.className = "details";
+                buttonDetails.value = movies[i].imdbID;
+                buttonDetails.innerHTML ="Details";
+
+                
+                mainDiv.appendChild(filmTypeDiv);
+                mainDiv.appendChild(filmNameDiv);
+                mainDiv.appendChild(filmYearDiv);
+                mainDiv.appendChild(buttonDetails);
+                wrapDiv.appendChild(imgPoster);
+                wrapDiv.appendChild(mainDiv);
+                mainDivExist.appendChild(wrapDiv);
+
+                pag.style.display="flex";
+
+  }
+
+                var elements = document.getElementsByClassName('details');
+                for (var i = 0; i < elements.length; i++) elements[i].addEventListener("click", searchMoviesById);
+
+
+   
+  
+}
+		//
+		
+	</script>
+</body>
+</html>
